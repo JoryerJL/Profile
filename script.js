@@ -265,3 +265,93 @@ document.addEventListener('click', function(e) {
         trackEvent('social_link_click', { platform });
     }
 });
+
+// Lightbox for about-gallery images
+(function() {
+    const gallery = document.querySelector('.about-gallery');
+    if (!gallery) return;
+
+    const images = Array.from(gallery.querySelectorAll('img'));
+
+    // Create lightbox elements
+    const lightbox = document.createElement('div');
+    lightbox.className = 'lightbox';
+
+    const content = document.createElement('div');
+    content.className = 'lightbox-content';
+
+    const img = document.createElement('img');
+    content.appendChild(img);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'lightbox-close';
+    closeBtn.innerHTML = '&times;';
+    content.appendChild(closeBtn);
+
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'lightbox-prev';
+    prevBtn.innerHTML = '&#9664;';
+    content.appendChild(prevBtn);
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'lightbox-next';
+    nextBtn.innerHTML = '&#9654;';
+    content.appendChild(nextBtn);
+
+    lightbox.appendChild(content);
+    document.body.appendChild(lightbox);
+
+    let currentIndex = 0;
+
+    function openLightbox(index) {
+        currentIndex = index;
+        img.src = images[currentIndex].src;
+        img.alt = images[currentIndex].alt || '';
+        lightbox.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        lightbox.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    function showPrev() {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        img.src = images[currentIndex].src;
+        img.alt = images[currentIndex].alt || '';
+    }
+
+    function showNext() {
+        currentIndex = (currentIndex + 1) % images.length;
+        img.src = images[currentIndex].src;
+        img.alt = images[currentIndex].alt || '';
+    }
+
+    // Click handlers on thumbnails
+    images.forEach((thumbnail, idx) => {
+        thumbnail.style.cursor = 'zoom-in';
+        thumbnail.addEventListener('click', (e) => {
+            e.preventDefault();
+            openLightbox(idx);
+        });
+    });
+
+    // Button handlers
+    closeBtn.addEventListener('click', closeLightbox);
+    prevBtn.addEventListener('click', showPrev);
+    nextBtn.addEventListener('click', showNext);
+
+    // Click outside content closes
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('open')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') showPrev();
+        if (e.key === 'ArrowRight') showNext();
+    });
+})();
